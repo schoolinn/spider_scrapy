@@ -16,4 +16,12 @@ class SpiderItem(scrapy.Item):
 
 class userItem(scrapy.Item):
     name = scrapy.Field()
-    url = scrapy.Field()
+    avatar = scrapy.Field()
+    dec = scrapy.Field()
+    work_time = scrapy.Field()
+    work_price = scrapy.Field()
+    address = scrapy.Field()
+    work_list = scrapy.Field()
+    edu_list = scrapy.Field()
+    skill_list = scrapy.Field()
+    works = scrapy.Field()

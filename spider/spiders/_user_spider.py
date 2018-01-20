@@ -15,90 +15,87 @@ class UserSpider(scrapy.Spider):
 
         
     def parse_list(self, response):
-        page = response.url.split("/")[-2]
-        filename = 'user-list.html'
 
         userlist = response.css('.user-info .title a::attr(href)')
 
         for userUrl in userlist:
-            if userUrl.extract() != '/hire/fast':
-                with open(filename, 'ab+') as f:
-                    f.write(userUrl.extract().encode("UTF-8")+'\n\n')
-                    
-                    yield scrapy.Request(url=userUrl.extract(), callback=self.parse)
+            if userUrl.extract() != '/hire/fast':    
+                yield scrapy.Request(url=userUrl.extract(), callback=self.parse)
 
         
 
     def parse(self, response):
-        page = response.url.split("/")[-2]
-        filename = 'user-data.html'
+        
         item = userItem()
+
+        #avatar url
+        item['avatar'] = response.css('.avatar .image img::attr(src)').extract_first()
+
+        #user name
+        item['name'] = response.css('.avatar .image img::attr(alt)').extract_first()
+
+        #user address & tag
+        item['address'] = response.xpath("//title/text()").extract_first()
+
+        #user work-price
+        item['work_price'] = response.css('.work-price .price::text').extract_first()
+
+        #user work-time
+        item['work_time'] = response.css('.hire-info p::text')[2].extract()
+
+        #user dec
+        dec = response.css('.panel>.content p::text')
+        item['dec'] = ''
+        if dec:
+            item['dec'] = dec.extract_first()        
         
-        
-        with open(filename, 'ab+') as f:
-            
-            #avatar url
-            f.write('<hr/>'+response.css('.avatar .image img::attr(src)').extract_first().encode("UTF-8")+'\n\n')
-            item['url'] = response.css('.avatar .image img::attr(src)').extract_first()
+        #user worklist
+        if len( response.css('.J_Works') ) >= 1:
+            worklist = response.css('.J_Works')[0].css('li')
+            workdata = []
+            for work in worklist:
+                workdata.append({
+                    'time': work.css('.title span::text').extract_first(),
+                    'cname': work.css('.title span::text')[1].extract(),
+                    'job': work.css('.title span::text')[2].extract(),
+                    'dec': work.css('.summary::text').extract_first()
+                    })
+        item['work_list'] = workdata
 
-            #user name
-            f.write(response.css('.avatar .image img::attr(alt)').extract_first().encode("UTF-8")+'\n\n')
-            item['name'] = response.css('.avatar .image img::attr(alt)').extract_first()
+        #user edulist
+        if len( response.css('.J_Works') ) == 2:
+            edulist = response.css('.J_Works')[1].css('li')
+            edudata = []
+            for edu in edulist:
+                edudata.append({
+                    'time': edu.css('.title span::text').extract_first(),
+                    'school': edu.css('.title span::text')[1].extract(),
+                    'professional': edu.css('.title span::text')[2].extract(),
+                    'level': edu.css('.title span::text')[3].extract(),
+                    'dec': edu.css('.summary::text').extract_first()
+                    })
+        item['edu_list'] = edudata
 
-            #user address & tag
-            f.write(response.xpath("//title/text()").extract_first().encode("UTF-8")+'\n\n')
+        #user skilllist
+        skilllist = response.css('.skill-list .skill')
+        skilldata = []
+        for skill in skilllist:
+            skilldata.append({
+                'name': skill.css('.name::text').extract_first().strip(),
+                'level': skill.css('.progress div::attr(class)').extract_first()[-1]
+                })
+        item['skill_list'] = skilldata
 
-            #user work-price
-            f.write(response.css('.work-price .price::text').extract_first().encode("UTF-8")+'\n\n')
-            
-            #user work-time
-            f.write(response.css('.hire-info p::text')[2].extract().encode("UTF-8")+'\n\n')
-            
-            #user dec
-            dec = response.css('.panel>.content p::text')
-            if dec:
-                f.write(dec.extract_first().encode("UTF-8")+'\n\n')
-            
-            
-            
-            #user worklist
-            if len( response.css('.J_Works') ) >= 1:
-                worklist = response.css('.J_Works')[0].css('li')
+        #user works
+        if response.css('.works .work'):
+            userwork = response.css('.works .work')
+            works = []
+            for work in userwork:
+                works.append({
+                    'name': work.css('.title a::text').extract_first(),
+                    'dec': work.css('.description::text').extract_first().strip(),
+                    'imgs': work.css('.J_ImgPop::attr(href)').extract()
+                    })
+        item['works'] = works
 
-                for work in worklist:
-                    f.write(work.css('.title span::text').extract_first().encode("UTF-8")+'\n\n')
-                    f.write(work.css('.title span::text')[1].extract().encode("UTF-8")+'\n\n')
-                    f.write(work.css('.title span::text')[2].extract().encode("UTF-8")+'\n\n')
-                    f.write(work.css('.summary::text').extract_first().encode("UTF-8")+'\n\n')
-                
-            #user edulist
-            if len( response.css('.J_Works') ) >= 2:
-                edulist = response.css('.J_Works')[1].css('li')
-
-                for edu in edulist:
-                    f.write(edu.css('.title span::text').extract_first().encode("UTF-8")+'\n\n')
-                    f.write(edu.css('.title span::text')[1].extract().encode("UTF-8")+'\n\n')
-                    f.write(edu.css('.title span::text')[2].extract().encode("UTF-8")+'\n\n')
-                    f.write(edu.css('.summary::text').extract_first().encode("UTF-8")+'\n\n')
-     
-            #user skilllist
-            skilllist = response.css('.skill-list .skill')
-
-            for skill in skilllist:
-                f.write(skill.css('.name::text').extract_first().strip().encode("UTF-8")+'\n\n')
-                f.write(skill.css('.progress div::attr(class)').extract_first().encode("UTF-8")+'\n\n')
-
-            #user works
-            if response.css('.works .work'):
-                userwork = response.css('.works .work')
-
-                for work in userwork:
-                    f.write(work.css('.title a::text').extract_first().encode("UTF-8")+'\n\n')
-                    f.write(work.css('.description::text').extract_first().strip().encode("UTF-8")+'\n\n')
-
-                    #coll.insert({'url' : work.css('.J_ImgPop::attr(href)').extract()})
-
-                    for workimg in work.css('.J_ImgPop::attr(href)'):
-                        f.write(workimg.extract().strip().encode("UTF-8")+'\n\n')
-            
-            yield item
+        yield item

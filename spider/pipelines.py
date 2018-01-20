@@ -10,7 +10,15 @@ class SpiderPipeline(object):
 		if spider.name == 'user':
 			data = {
 				'name': item['name'],
-				'url': item['url']
+				'avatar': item['avatar'],
+				'dec': item['dec'],
+				'work_time': item['work_time'],
+				'work_price': item['work_price'],
+				'address': item['address'],
+				'work_list': item['work_list'],
+				'edu_list': item['edu_list'],
+				'skill_list': item['skill_list'],
+				'works': item['works']
 			}
 			self.db['people'].insert_one(data)
 			return item
