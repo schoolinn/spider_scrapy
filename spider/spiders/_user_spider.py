@@ -1,5 +1,5 @@
 import scrapy
-import _db_
+from ..items import userItem
 
 class UserSpider(scrapy.Spider):
     name = "user"
@@ -8,7 +8,7 @@ class UserSpider(scrapy.Spider):
     
         maxLen = 0;
 
-        while maxLen < 500:
+        while maxLen < 2:
             maxLen+=1
             url = 'https://www.proginn.com/' + str( maxLen )
             yield scrapy.Request(url=url, callback=self.parse_list)
@@ -24,6 +24,7 @@ class UserSpider(scrapy.Spider):
             if userUrl.extract() != '/hire/fast':
                 with open(filename, 'ab+') as f:
                     f.write(userUrl.extract().encode("UTF-8")+'\n\n')
+                    
                     yield scrapy.Request(url=userUrl.extract(), callback=self.parse)
 
         
@@ -31,15 +32,19 @@ class UserSpider(scrapy.Spider):
     def parse(self, response):
         page = response.url.split("/")[-2]
         filename = 'user-data.html'
+        item = userItem()
+        
+        
         with open(filename, 'ab+') as f:
             
-            coll = _db_.get_db().people
             #avatar url
             f.write('<hr/>'+response.css('.avatar .image img::attr(src)').extract_first().encode("UTF-8")+'\n\n')
+            item['url'] = response.css('.avatar .image img::attr(src)').extract_first()
 
             #user name
             f.write(response.css('.avatar .image img::attr(alt)').extract_first().encode("UTF-8")+'\n\n')
-            
+            item['name'] = response.css('.avatar .image img::attr(alt)').extract_first()
+
             #user address & tag
             f.write(response.xpath("//title/text()").extract_first().encode("UTF-8")+'\n\n')
 
@@ -91,7 +96,9 @@ class UserSpider(scrapy.Spider):
                     f.write(work.css('.title a::text').extract_first().encode("UTF-8")+'\n\n')
                     f.write(work.css('.description::text').extract_first().strip().encode("UTF-8")+'\n\n')
 
-                    coll.insert({'url' : work.css('.J_ImgPop::attr(href)').extract()})
+                    #coll.insert({'url' : work.css('.J_ImgPop::attr(href)').extract()})
 
                     for workimg in work.css('.J_ImgPop::attr(href)'):
                         f.write(workimg.extract().strip().encode("UTF-8")+'\n\n')
+            
+            yield item

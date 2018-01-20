@@ -12,3 +12,8 @@ class SpiderItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
     pass
+
+
+class userItem(scrapy.Item):
+    name = scrapy.Field()
+    url = scrapy.Field()
