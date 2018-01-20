@@ -26,11 +26,23 @@ class JuejinSpider(scrapy.Spider):
 
     def parse_c(self, response):
         filename = 'juejin.html'
-        with open(filename, 'ab+') as f:
-            f.write(response.body)
-
-            #for quote in response.css('.item .tag').re(r'st:state[=\'\"\s]+([^\'\"]*)[\'\"]?[\s\S]*'):
-                #f.write(quote+'\n\n\n')
-                #print self.tagList
         sites = json.loads(response.body_as_unicode()) 
-        print sites['d']['total']  
+        with open(filename, 'ab+') as f:
+            f.write(sites['d']['entrylist'][0]['originalUrl']+'\n\n\n')
+            f.write(sites['d']['entrylist'][0]['content'].encode("UTF-8")+'\n\n\n')
+            f.write(sites['d']['entrylist'][0]['createdAt']+'\n\n\n')
+            f.write(sites['d']['entrylist'][0]['updatedAt']+'\n\n\n')
+            f.write(sites['d']['entrylist'][0]['title'].encode("UTF-8")+'\n\n\n')
+            
+            for tag in sites['d']['entrylist'][0]['tags']:
+                f.write(tag['title'].encode("UTF-8")+'\n')
+                f.write(tag['id'].encode("UTF-8")+'\n')
+
+            yield scrapy.Request(url=sites['d']['entrylist'][0]['originalUrl'], callback=self.parse_s)
+
+    def parse_s(self, response):
+        
+        filename = 'content.html'
+        print response.css('.juejin-image-viewer__container')[0]+'@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'
+        with open(filename, 'wb') as f:
+            f.write(response.css('.juejin-image-viewer__container').extract()[0].encode("UTF-8"))
