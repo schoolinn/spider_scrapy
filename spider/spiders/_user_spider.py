@@ -5,17 +5,7 @@ class UserSpider(scrapy.Spider):
     name = "user"
 
     def start_requests(self):
-        urls = [
-            'https://www.proginn.com/1/',
-            'https://www.proginn.com/2/',
-            'https://www.proginn.com/3/',
-            'https://www.proginn.com/4/',
-            'https://www.proginn.com/5/',
-            'https://www.proginn.com/6/',
-            'https://www.proginn.com/7/',
-            'https://www.proginn.com/8/'
-        ]
-
+    
         maxLen = 0;
 
         while maxLen < 500:
