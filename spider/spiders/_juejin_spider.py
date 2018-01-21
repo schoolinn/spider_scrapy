@@ -12,7 +12,7 @@ class JuejinSpider(scrapy.Spider):
 
     def start_requests(self):
         
-        fo = open("juejin.html", "r+")
+        fo = open("juejin.tpl", "r+")
         str = fo.read()
         for quote in Selector(text=str).css('.item .tag').re(r'st:state[=\'\"\s]+([^\'\"]*)[\'\"]?[\s\S]*'):
             tag_url = "https://timeline-merger-ms.juejin.im/v1/get_tag_entry?src=web&tagId="+ quote +"&page=1&pageSize=10&sort=rankIndex"

@@ -5,5 +5,5 @@
 *.egg-info
 dist
 build
-spider/content.html
+spider/content.tpl
 
