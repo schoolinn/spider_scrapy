@@ -34,12 +34,3 @@ class juejinItem(scrapy.Item):
     utime = scrapy.Field()
     tag = scrapy.Field()
     content = scrapy.Field()
-
-
-
-
-
-
-
-
-
