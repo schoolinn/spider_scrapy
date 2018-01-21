@@ -18,24 +18,32 @@ class JuejinSpider(scrapy.Spider):
 
     def parse(self, response):
         for quote in response.css('.item .tag').re(r'st:state[=\'\"\s]+([^\'\"]*)[\'\"]?[\s\S]*'):
-            tag_url = "https://timeline-merger-ms.juejin.im/v1/get_tag_entry?src=web&tagId="+ quote +"&page=1&pageSize=1&sort=rankIndex"
+            tag_url = "https://timeline-merger-ms.juejin.im/v1/get_tag_entry?src=web&tagId="+ quote +"&page=1&pageSize=10&sort=rankIndex"
             yield scrapy.Request(url=tag_url, callback=self.parse_c)
 
 
     def parse_c(self, response):
         
-        sites = json.loads(response.body_as_unicode()) 
-        self.item['dec'] = sites['d']['entrylist'][0]['content']
-        self.item['time'] = sites['d']['entrylist'][0]['createdAt']
-        self.item['utime'] = sites['d']['entrylist'][0]['updatedAt']
-        self.item['title'] = sites['d']['entrylist'][0]['title']
-        self.item['tag'] = sites['d']['entrylist'][0]['tags']
+        sites = json.loads(response.body_as_unicode())
+        for article in  sites['d']['entrylist']:
+            self.item['dec'] = article['content']
+            self.item['time'] = article['createdAt']
+            self.item['utime'] = article['updatedAt']
+            self.item['title'] = article['title']
 
-        yield scrapy.Request(url=sites['d']['entrylist'][0]['originalUrl'], it=item , callback=self.parse_s)
+            tags = []
+            for tag in article['tags']:
+                tags.append({
+                    'name': tag['title'],
+                    'id': tag['id']
+                    })
+            self.item['tag'] = tags
 
-        def parse_s(self, response):
-            self.item['content'] = response.css('.post-content-container').extract_first()
-            yield self.item
+            yield scrapy.Request(url=article['originalUrl'], callback=self.parse_s)
+
+    def parse_s(self, response):
+        self.item['content'] = response.css('.post-content-container').extract_first()
+        yield self.item
 
 
 

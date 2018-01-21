@@ -26,7 +26,7 @@ class SpiderPipeline(object):
 			data = {
 				'title': item['title'],
 				'dec': item['dec'],
-				'time': item['item'],
+				'time': item['time'],
 				'utime': item['utime'],
 				'tag': item['tag'],
 				'content': item['content']
@@ -34,7 +34,6 @@ class SpiderPipeline(object):
 			self.db['article'].insert_one(data)
 
 		return item
-		pass
 
 	def close_spider(self, spider):
 		self.client.close()
