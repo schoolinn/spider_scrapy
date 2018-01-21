@@ -25,3 +25,21 @@ class userItem(scrapy.Item):
     edu_list = scrapy.Field()
     skill_list = scrapy.Field()
     works = scrapy.Field()
+
+
+class juejinItem(scrapy.Item):
+    title = scrapy.Field()
+    dec = scrapy.Field()
+    time = scrapy.Field()
+    utime = scrapy.Field()
+    tag = scrapy.Field()
+    content = scrapy.Field()
+
+
+
+
+
+
+
+
+
