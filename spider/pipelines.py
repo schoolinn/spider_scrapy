@@ -1,10 +1,11 @@
 from pymongo import MongoClient
+from scrapy.conf import settings
 
 class SpiderPipeline(object):
 
 	def __init__(self):
-		self.client = MongoClient('localhost',27017)
-		self.db = self.client['test']
+		self.client = MongoClient(settings['MONGO_HOST'],settings['MONGO_PORT'])
+		self.db = self.client[settings['MONGO_DB']]
 
 	def process_item(self, item, spider):
 		if spider.name == 'user':

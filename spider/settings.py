@@ -92,3 +92,10 @@ ITEM_PIPELINES = {
 AJAXCRAWL_ENABLED = True
 
 USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'
+
+MONGO_HOST = "127.0.0.1"
+MONGO_PORT = 27017
+MONGO_DB = "test"
+
+JUEJIN_PAGE = 10
+USER_NUM = 100

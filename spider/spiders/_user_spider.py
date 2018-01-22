@@ -8,7 +8,7 @@ class UserSpider(scrapy.Spider):
     
         maxLen = 0;
 
-        while maxLen < 500:
+        while maxLen < scrapy.conf.settings['USER_NUM']:
             maxLen+=1
             url = 'https://www.proginn.com/' + str( maxLen )
             yield scrapy.Request(url=url, callback=self.parse_list)

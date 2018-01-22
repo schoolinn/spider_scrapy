@@ -19,7 +19,7 @@ class JuejinSpider(scrapy.Spider):
         fo.close()
         for quote in Selector(text=istr).css('.item .tag').re(r'st:state[=\'\"\s]+([^\'\"]*)[\'\"]?[\s\S]*'):
             ipage = 0
-            while ipage < 50:   
+            while ipage < scrapy.conf.settings['JUEJIN_PAGE']:   
                 ipage += 1
                 if self.isLest:
                     tag_url = "https://timeline-merger-ms.juejin.im/v1/get_tag_entry?src=web&tagId="+ quote +"&page="+ str(ipage) +"&pageSize=1&sort=rankIndex"
