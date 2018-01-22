@@ -28,6 +28,7 @@ class userItem(scrapy.Item):
 
 
 class juejinItem(scrapy.Item):
+    objectId = scrapy.Field()
     title = scrapy.Field()
     dec = scrapy.Field()
     time = scrapy.Field()

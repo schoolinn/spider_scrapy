@@ -24,6 +24,7 @@ class SpiderPipeline(object):
 
 		if spider.name == 'juejin':
 			data = {
+				'objectId': item['objectId'],
 				'title': item['title'],
 				'dec': item['dec'],
 				'time': item['time'],
@@ -36,4 +37,13 @@ class SpiderPipeline(object):
 		return item
 
 	def close_spider(self, spider):
+		self.db['article'].distinct("objectId")
+		patents = {}
+		count = 0
+		for patent_record in self.db['article'].find({"objectId":{"$ne":0}}):
+			if patent_record['objectId'] not in patents.keys():
+				patents[patent_record['objectId']] = patent_record
+			else:
+				count += 1
+				self.db['article'].delete_one({"objectId":patent_record['objectId']})
 		self.client.close()

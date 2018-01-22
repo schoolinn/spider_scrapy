@@ -7,3 +7,4 @@ dist
 build
 spider/content.tpl
 
+.vscode/settings.json

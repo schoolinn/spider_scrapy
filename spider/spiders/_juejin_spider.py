@@ -1,6 +1,7 @@
 import scrapy
 from scrapy.selector import Selector
 import json
+import os
 from ..items import juejinItem
 
 
@@ -12,10 +13,11 @@ class JuejinSpider(scrapy.Spider):
 
     def start_requests(self):
         
-        fo = open("juejin.tpl", "r+")
+        fo = open(os.path.abspath(os.path.dirname(os.path.dirname(__file__)))+"/juejin.tpl", "r+")
         str = fo.read()
+        fo.close()
         for quote in Selector(text=str).css('.item .tag').re(r'st:state[=\'\"\s]+([^\'\"]*)[\'\"]?[\s\S]*'):
-            tag_url = "https://timeline-merger-ms.juejin.im/v1/get_tag_entry?src=web&tagId="+ quote +"&page=1&pageSize=10&sort=rankIndex"
+            tag_url = "https://timeline-merger-ms.juejin.im/v1/get_tag_entry?src=web&tagId="+ quote +"&page=1&pageSize=50&sort=rankIndex"
             yield scrapy.Request(url=tag_url, callback=self.parse_c)
 
 
@@ -24,6 +26,7 @@ class JuejinSpider(scrapy.Spider):
         
         sites = json.loads(response.body_as_unicode())
         for article in  sites['d']['entrylist']:
+            self.item['objectId'] = article['objectId']
             self.item['dec'] = article['content']
             self.item['time'] = article['createdAt']
             self.item['utime'] = article['updatedAt']
@@ -40,7 +43,9 @@ class JuejinSpider(scrapy.Spider):
             yield scrapy.Request(url=article['originalUrl'], callback=self.parse_s)
 
     def parse_s(self, response):
-        self.item['content'] = response.css('.post-content-container').extract_first()
+        content = response.css('.post-content-container').extract_first()
+        if content:
+            self.item['content'] = content
         yield self.item
 
 
