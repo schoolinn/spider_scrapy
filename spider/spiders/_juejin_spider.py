@@ -3,6 +3,8 @@ from scrapy.selector import Selector
 import json
 import os
 from ..items import juejinItem
+from pymongo import MongoClient
+from scrapy.conf import settings
 
 
 class JuejinSpider(scrapy.Spider):
@@ -11,13 +13,22 @@ class JuejinSpider(scrapy.Spider):
     def __init__(self):
         self.item = juejinItem()
         self.isLest = True
+        self.client = MongoClient(settings['MONGO_HOST'],settings['MONGO_PORT'])
+        self.db = self.client[settings['MONGO_DB']]
 
     def start_requests(self):
         
         fo = open(os.path.abspath(os.path.dirname(os.path.dirname(__file__)))+"/juejin.tpl", "r+")
         istr = fo.read()
         fo.close()
-        for quote in Selector(text=istr).css('.item .tag').re(r'st:state[=\'\"\s]+([^\'\"]*)[\'\"]?[\s\S]*'):
+        for quote, timg, name in zip(Selector(text=istr).css('.item .tag').re(r'st:state[=\'\"\s]+([^\'\"]*)[\'\"]?[\s\S]*'), Selector(text=istr).css('.item .lazy').re(r'data-src[=\'\"\s]+([^\'\"]*)[\'\"]?[\s\S]*'), Selector(text=istr).css('.item .title::text')):
+            self.timg = timg
+            self.db['tags'].insert_one({
+					'name': name.extract(),
+					'id': quote,
+					'timg': timg
+				})
+            
             ipage = 0
             while ipage < scrapy.conf.settings['JUEJIN_PAGE']:   
                 ipage += 1

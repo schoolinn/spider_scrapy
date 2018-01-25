@@ -33,6 +33,8 @@ class SpiderPipeline(object):
 				'tag': item['tag'],
 				'content': item['content']
 			}
+
+			
 			self.db['article'].insert_one(data)
 
 		return item
@@ -47,4 +49,6 @@ class SpiderPipeline(object):
 			else:
 				count += 1
 				self.db['article'].delete_one({"objectId":patent_record['objectId']})
+
+		
 		self.client.close()
