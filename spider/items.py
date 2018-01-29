@@ -35,3 +35,12 @@ class juejinItem(scrapy.Item):
     utime = scrapy.Field()
     tag = scrapy.Field()
     content = scrapy.Field()
+
+class queItem(scrapy.Item):
+    title = scrapy.Field()
+    answer_num = scrapy.Field()
+    author = scrapy.Field()
+    tags = scrapy.Field()
+    time = scrapy.Field()
+    dec = scrapy.Field()
+    answer = scrapy.Field()

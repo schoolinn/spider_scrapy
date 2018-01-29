@@ -37,6 +37,20 @@ class SpiderPipeline(object):
 			
 			self.db['article'].insert_one(data)
 
+		if spider.name == 'que':
+			data = {
+				'title': item['title'],
+				'answer_num': item['answer_num'],
+				'author': item['author'],
+				'tags': item['tags'],
+				'time': item['time'],
+				'dec': item['dec'],
+				'answer': item['answer']
+			}
+
+			
+			self.db['question'].insert_one(data)
+
 		return item
 
 	def close_spider(self, spider):
